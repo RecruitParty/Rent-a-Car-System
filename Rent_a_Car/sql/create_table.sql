@@ -1,24 +1,24 @@
 USE rental_car;
 
-CREATE TABLE `관리자`(
-	관리자ID INTEGER PRIMARY KEY,
-	관리자이름 VARCHAR(50) NOT NULL,
-	관리자전화번호 VARCHAR(20) NOT NULL UNIQUE
+
+CREATE TABLE manager(
+	manager_id INTEGER PRIMARY KEY,
+	manager_name VARCHAR(50) NOT NULL,
+	manager_phno VARCHAR(20) NOT NULL UNIQUE
 );
 	
-CREATE TABLE `지점` (
-    지점번호 INTEGER PRIMARY KEY,
-    지점명 VARCHAR(50) NOT NULL UNIQUE,
-    지점위치 VARCHAR(100) NOT NULL
+CREATE TABLE spot (
+    spot_no INTEGER PRIMARY KEY,
+    spot_name VARCHAR(50) NOT NULL UNIQUE,
+    spot_location VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE `차량` (
-    차량번호 VARCHAR(20) PRIMARY KEY,
-    차량종류 VARCHAR(30) NOT NULL,
-    대여여부 BOOLEAN NOT NULL,
-    지점번호 INTEGER,
-    일당대여료 INTEGER NOT NULL,
+CREATE TABLE car (
+    car_no VARCHAR(20) PRIMARY KEY,
+    car_type VARCHAR(30) NOT NULL,
+    rental_availability BOOLEAN NOT NULL,
+    spot_no INTEGER,
+    daily_rental_fee INTEGER NOT NULL,
 
-    FOREIGN KEY (지점번호)
-        REFERENCES `지점`(지점번호)
+    FOREIGN KEY (spot_no) REFERENCES spot(spot_no)
 );
