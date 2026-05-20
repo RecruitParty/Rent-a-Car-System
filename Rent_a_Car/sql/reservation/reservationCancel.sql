@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE reservationQuit(
+CREATE PROCEDURE reservationCancel(
     IN cusID INT,
     IN carNo VARCHAR(20)
 )
