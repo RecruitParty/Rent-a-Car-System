@@ -7,7 +7,7 @@ BEGIN
 
     UPDATE Rental_record
     SET rental_state = '대여중'
-    WHERE rental_state = '예약완료' AND rental_date <= CURDATE();
+    WHERE rental_state = '예약완료' AND rental_date = CURDATE();
 
     UPDATE Rental_record
     SET rental_state = '연체'
@@ -29,4 +29,4 @@ CREATE EVENT rentalStateEvent
 ON SCHEDULE EVERY 1 DAY
 STARTS TIMESTAMP(CURRENT_DATE + INTERVAL 1 DAY)
 DO
-CALL update_rental_state();
+CALL updateRentalState();

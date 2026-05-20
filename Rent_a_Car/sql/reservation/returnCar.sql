@@ -13,19 +13,32 @@ BEGIN
     DECLARE dayPrice INT;
     DECLARE startDate DATE;
     DECLARE totalPrice INT;
+    DECLARE rentalState VARCHAR(30);
 
     SELECT rental_availability
     INTO rentState
     FROM car
     WHERE car_no = carNo;
 
-    SELECT rental_id
+    SELECT r.rental_id
     INTO reserveNo
+    FROM Rental r
+    JOIN Rental_record rr
+    ON r.rental_id = rr.rental_id
+    WHERE r.user_id = cusID AND r.car_no = carNo AND rr.rental_state IN ('대여중', '연체');
+
+    SELECT rental_date
+    INTO startDate
     FROM Rental_record
-    WHERE user_id = cusID AND car_no = carNo AND rental_state = '대여중';
+    WHERE rental_id = reserveNo;
+        
+    SELECT rental_state
+    INTO rentalState
+    FROM Rental_record
+    WHERE rental_id = reserveNo;
 
     IF rentState = FALSE THEN
-		  IF rental_state = '연체' THEN
+		  IF rentalState = '연체' THEN
 		  	UPDATE Rental_record
         	SET rental_state = '반납완료(연체됨)', return_dest = returnDest, actual_return_date = actualReturnDate
         	WHERE rental_id = reserveNo;
@@ -39,11 +52,6 @@ BEGIN
         INTO dayPrice
         FROM car
         WHERE car_no = carNo;
-
-        SELECT rental_date
-        INTO startDate
-        FROM Rental_record
-        WHERE rental_id = reserveNo;
 
         SET totalPrice = dayPrice * DATEDIFF(actualReturnDate, startDate);
 

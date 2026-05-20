@@ -29,13 +29,11 @@ BEGIN
         INTO reservationListCount
         FROM Rental_record;
         
-        SELECT COUNT(*)+1
-        INTO reservationCount
-        FROM Rental;
-        
-		  INSERT INTO Rental_record(rental_id, rental_dest, return_dest, rental_date, expected_rental_date, rental_state)
-		  	VALUES(reservationListCount, startLocation, endLocation, startDate, dueDate, '예약확정');
+		  INSERT INTO Rental_record(rental_id, rental_dest, return_dest, rental_date, expected_return_date, rental_state)
+		  	VALUES(reservationListCount, startLocation, endLocation, startDate, dueDate, '예약완료');
 		  	
+		  SET reservationCount = reservationListCount;
+		  
 		  INSERT INTO Rental(rental_id, user_id, car_no)
 			VALUES(reservationCount, cusID, carNo);
 		  
