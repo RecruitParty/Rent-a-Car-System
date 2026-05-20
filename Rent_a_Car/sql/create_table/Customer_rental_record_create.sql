@@ -1,4 +1,4 @@
-USE renatl_car;
+USE rental_car;
 
 
 CREATE TABLE Customer (
@@ -15,6 +15,10 @@ user_phone VARCHAR(20) NOT NULL UNIQUE
 CREATE TABLE Rental (
 
 rental_id INTEGER PRIMARY KEY,
+
+user_id INTEGER NOT NULL,
+
+car_no VARCHAR(20) NOT NULL,
 
 FOREIGN KEY (user_id) REFERENCES Customer(user_id),
 
