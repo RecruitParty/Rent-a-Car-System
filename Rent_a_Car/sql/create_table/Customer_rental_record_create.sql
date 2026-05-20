@@ -38,6 +38,8 @@ expected_return_date DATE NOT NULL,
 
 actual_return_date DATE,
 
+rental_state VARCHAR(50) NOT NULL,
+
 FOREIGN KEY (rental_id) REFERENCES Rental(rental_id),
 
 FOREIGN KEY (rental_spot) REFERENCES Spot(spot_no),
