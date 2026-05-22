@@ -1,6 +1,5 @@
 USE rental_car;
 
-
 CREATE TABLE manager(
 	manager_id INTEGER PRIMARY KEY,
 	manager_name VARCHAR(50) NOT NULL,

@@ -16,9 +16,9 @@ CREATE TABLE Rental (
 
 rental_id INTEGER PRIMARY KEY,
 
-user_id INTEGER,
+user_id INTEGER NOT NULL,
 
-car_no VARCHAR(20),
+car_no VARCHAR(20) NOT NULL,
 
 FOREIGN KEY (user_id) REFERENCES Customer(user_id),
 
