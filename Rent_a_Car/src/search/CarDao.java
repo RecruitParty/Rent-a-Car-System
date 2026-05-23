@@ -1,5 +1,10 @@
+package search;
+
 import java.sql.*;
 import java.util.*;
+
+import db.DBConnector;
+import model.Car;
 
 public class CarDao {
 	//차량 종류 검색

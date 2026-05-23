@@ -1,5 +1,9 @@
+package search;
+
 import java.sql.*;
 import java.util.*;
+import db.DBConnector;
+import model.Spot;
 
 public class SpotDao {
 	//존재하는 지점 조회

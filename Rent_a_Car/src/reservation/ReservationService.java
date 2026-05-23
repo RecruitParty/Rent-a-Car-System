@@ -1,4 +1,8 @@
+package reservation;
+
 import java.sql.*;
+
+import db.DBConnector;
 
 public class ReservationService {
 
