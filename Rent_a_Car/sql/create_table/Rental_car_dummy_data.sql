@@ -90,12 +90,12 @@ INSERT INTO manager (manager_id, manager_name, manager_phno) VALUES
 -- car
 
 INSERT INTO car (car_no, car_type, rental_availability, spot_no, daily_rental_fee) VALUES
-  ('서울다5257', 'SUV', FALSE, 19, 55000),
+  ('서울다5257', 'SUV', TRUE, 19, 55000),
   ('서울가7742', '경차', TRUE, 4, 55000),
-  ('제주가8772', '전기차', FALSE, 14, 60000),
-  ('부산가6192', '승합차', FALSE, 14, 40000),
+  ('제주가8772', '전기차', TRUE, 14, 60000),
+  ('부산가6192', '승합차', TRUE, 14, 40000),
   ('광주가9062', '경차', TRUE, 7, 100000),
-  ('부산가1575', '세단', TRUE, 3, 60000),
+  ('부산가1575', '세단', FALSE, 3, 60000),
   ('부산나5644', '승합차', FALSE, 6, 100000),
   ('서울나1382', '승합차', TRUE, 13, 60000),
   ('대전가4892', 'SUV', TRUE, 13, 100000),
@@ -106,7 +106,7 @@ INSERT INTO car (car_no, car_type, rental_availability, spot_no, daily_rental_fe
   ('서울다2327', 'SUV', TRUE, 1, 80000),
   ('인천가8494', '전기차', TRUE, 7, 55000),
   ('서울나8458', '전기차', TRUE, 1, 40000),
-  ('대전가2779', 'SUV', TRUE, 9, 40000),
+  ('대전가2779', 'SUV', FALSE, 9, 40000),
   ('부산나1726', 'SUV', TRUE, 8, 95000),
   ('광주가1199', '세단', TRUE, 20, 95000),
   ('서울다6113', '세단', TRUE, 9, 40000),
@@ -114,11 +114,11 @@ INSERT INTO car (car_no, car_type, rental_availability, spot_no, daily_rental_fe
   ('서울나5938', '세단', TRUE, 6, 55000),
   ('서울나8348', '경차', TRUE, 6, 60000),
   ('부산나7636', 'SUV', TRUE, 7, 80000),
-  ('대전가5886', '세단', TRUE, 1, 65000),
+  ('대전가5886', '세단', FALSE, 1, 65000),
   ('서울가7348', '승합차', TRUE, 13, 90000),
   ('서울나2091', '전기차', TRUE, 7, 35000),
   ('광주가2146', '전기차', TRUE, 8, 35000),
-  ('서울다5548', '승합차', TRUE, 1, 35000),
+  ('서울다5548', '승합차', FALSE, 1, 35000),
   ('부산가4390', '전기차', TRUE, 8, 100000);
 
 -- Rental
