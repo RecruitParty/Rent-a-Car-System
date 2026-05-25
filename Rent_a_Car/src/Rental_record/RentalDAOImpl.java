@@ -31,8 +31,8 @@ public class RentalDAOImpl implements RecordDAO{
 		}
 		
 		rs.close();
-		conn.close();
 		pstmt.close();
+		conn.close();
 		
 		return personalRecord;
 	}
