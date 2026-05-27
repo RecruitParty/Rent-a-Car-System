@@ -27,7 +27,10 @@ public class RentalDAOImpl implements RecordDAO{
 		pstmt.setInt(1, user_id);
 		ResultSet rs = pstmt.executeQuery();
 		while (rs.next()) {
-			personalRecord.add(new RecordDTO(rs.getInt("rental_id"), rs.getString("car_no"), rs.getInt("rental_spot"), rs.getInt("return_spot"), rs.getDate("rental_date").toLocalDate(), rs.getDate("expected_return_date").toLocalDate(), rs.getDate("actual_return_date").toLocalDate(), rs.getString("rental_state")));
+			personalRecord.add(new RecordDTO(rs.getInt("rental_id"), rs.getString("car_no"), 
+					rs.getInt("rental_spot"), rs.getInt("return_spot"), 
+					rs.getDate("rental_date").toLocalDate(), rs.getDate("expected_return_date").toLocalDate(), 
+					rs.getDate("actual_return_date").toLocalDate(), rs.getString("rental_state")));
 		}
 		
 		rs.close();

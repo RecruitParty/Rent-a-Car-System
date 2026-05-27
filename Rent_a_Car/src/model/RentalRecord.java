@@ -13,7 +13,9 @@ public class RentalRecord {
 	
 	public RentalRecord() {}
 	
-	public RentalRecord(int rental_id, int rental_spot, int return_spot, LocalDate rental_date, LocalDate expected_return_date, LocalDate actual_return_date, String rental_state) {
+	public RentalRecord(int rental_id, int rental_spot, int return_spot, 
+			LocalDate rental_date, LocalDate expected_return_date, LocalDate actual_return_date, 
+			String rental_state) {
 		this.rental_id = rental_id;
 		this.rental_spot = rental_spot;
 		this.return_spot = return_spot;

@@ -14,7 +14,9 @@ public class RecordDTO {
 	
 	public RecordDTO() {}
 	
-	public RecordDTO(int rental_id, String car_no, int rental_spot, int return_spot, LocalDate rental_date, LocalDate expected_return_date, LocalDate actual_return_date, String rental_state) {
+	public RecordDTO(int rental_id, String car_no, int rental_spot, int return_spot, 
+			LocalDate rental_date, LocalDate expected_return_date, LocalDate actual_return_date, 
+			String rental_state) {
 		this.rental_id = rental_id;
 		this.car_no = car_no;
 		this.rental_spot = rental_spot;
