@@ -1,19 +1,15 @@
+package reservation;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import db.DBConnector;
 
-public class returnCarService {
+public class reservationCancelService {
 
     static Connection conn = null;
 
-    public static void returnCar(
-            int cusID,
-            String carNo,
-            int returnDest,
-            Date actualReturnDate
-    ) {
+    public static void reservationCancel(int cusID, String carNo) {
 
         try {
 
@@ -22,7 +18,7 @@ public class returnCarService {
             System.out.println("DB 연결 성공");
 
             conn.setAutoCommit(false);
-
+            
             String userSql =
                     "SELECT * FROM customer " +
                     "WHERE user_id = ?";
@@ -77,14 +73,12 @@ public class returnCarService {
                 return;
             }
 
+
             String reserveSql =
-                    "SELECT r.rental_id " +
-                    "FROM Rental r " +
-                    "JOIN Rental_record rr " +
-                    "ON r.rental_id = rr.rental_id " +
-                    "WHERE r.user_id = ? " +
-                    "AND r.car_no = ? " +
-                    "AND rr.rental_state IN ('진행중', '연체')";
+                    "SELECT rental_id " +
+                    "FROM Rental " +
+                    "WHERE user_id = ? " +
+                    "AND car_no = ?";
 
             PreparedStatement reserveStmt = conn.prepareStatement(reserveSql);
 
@@ -96,6 +90,7 @@ public class returnCarService {
             int reserveNo = 0;
 
             if(reserveRs.next()) {
+
                 reserveNo = reserveRs.getInt("rental_id");
             }
             else{
@@ -107,7 +102,7 @@ public class returnCarService {
             }
 
             String infoSql =
-                    "SELECT rental_date, rental_state " +
+                    "SELECT rental_state, rental_date " +
                     "FROM Rental_record " +
                     "WHERE rental_id = ?";
 
@@ -117,79 +112,80 @@ public class returnCarService {
 
             ResultSet infoRs = infoStmt.executeQuery();
 
-            Date startDate = null;
             String rentalState = "";
+            Date rentalDate = null;
 
             if(infoRs.next()) {
 
-                startDate = infoRs.getDate("rental_date");
-
                 rentalState = infoRs.getString("rental_state");
+
+                rentalDate = infoRs.getDate("rental_date");
             }
 
-            String updateSql = "";
+            Date currentDate =
+                    new Date(
+                            System.currentTimeMillis()
+                    );
 
-            if(rentalState.equals("연체")) {
+            long diff =
+                    rentalDate.getTime()
+                    - currentDate.getTime();
 
-                updateSql =
+            long dayDiff =
+                    diff / (1000 * 60 * 60 * 24);
+
+            if(!rentState && rentalState.equals("예약완료") && dayDiff >= 1) {
+
+                String updateCarSql =
+                        "UPDATE car " +
+                        "SET rental_availability = TRUE " +
+                        "WHERE car_no = ?";
+
+                PreparedStatement updateCarStmt = conn.prepareStatement(updateCarSql);
+
+                updateCarStmt.setString(1, carNo);
+
+                int updateCar = updateCarStmt.executeUpdate();
+
+                if(updateCar <= 0) {
+
+                    conn.rollback();
+
+                    System.out.println("차량 상태 변경 실패");
+
+                    return;
+                }
+
+                String cancelSql =
                         "UPDATE Rental_record " +
-                        "SET rental_state = '완료(연체됨)', " +
-                        "return_dest = ?, " +
-                        "actual_return_date = ? " +
+                        "SET rental_state = '예약취소' " +
                         "WHERE rental_id = ?";
+
+                PreparedStatement cancelStmt = conn.prepareStatement(cancelSql);
+
+                cancelStmt.setInt(1, reserveNo);
+
+                int cancel = cancelStmt.executeUpdate();
+
+                if(cancel <= 0) {
+
+                    conn.rollback();
+
+                    System.out.println("예약 취소에 실패하셨습니다.");
+
+                    return;
+                }
+
+                conn.commit();
+
+                System.out.println("예약이 취소되었습니다.");
 
             } else {
 
-                updateSql =
-                        "UPDATE Rental_record " +
-                        "SET rental_state = '완료', " +
-                        "return_dest = ?, " +
-                        "actual_return_date = ? " +
-                        "WHERE rental_id = ?";
-            }
-
-            PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-
-            updateStmt.setInt(1, returnDest);
-            updateStmt.setDate(2, actualReturnDate);
-            updateStmt.setInt(3, reserveNo);
-
-            int updated = updateStmt.executeUpdate();
-
-            if(updated <= 0) {
                 conn.rollback();
 
-                System.out.println("반납 처리 실패");
-
-                return;
+                System.out.println("취소 가능한 예약이 없습니다.");
             }
-
-            String priceSql =
-                    "SELECT daily_rental_fee " +
-                    "FROM car " +
-                    "WHERE car_no = ?";
-
-            PreparedStatement priceStmt = conn.prepareStatement(priceSql);
-
-            priceStmt.setString(1, carNo);
-
-            ResultSet priceRs = priceStmt.executeQuery();
-
-            int dayPrice = 0;
-
-            if(priceRs.next()) {
-
-                dayPrice = priceRs.getInt("daily_rental_fee");
-            }
-            long diff = (actualReturnDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-
-            int totalPrice = (int)diff * dayPrice;
-            
-            conn.commit();
-
-            System.out.println("반납이 완료되었습니다.");
-
-            System.out.println("총 금액 : " + totalPrice);
 
         } catch(Exception e) {
 
