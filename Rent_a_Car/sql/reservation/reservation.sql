@@ -7,6 +7,7 @@ CREATE PROCEDURE reservation(
     IN endLocation INT,
     IN startDate DATE,
     IN dueDate DATE
+    
 )
 BEGIN
     DECLARE rentState BOOLEAN;
@@ -19,12 +20,15 @@ BEGIN
     WHERE car_no = carNo;
     
     IF rentState = FALSE THEN
+     	  ROLLBACK;
         SELECT '이미 대여중인 차량입니다.' AS result;
     ELSE
+	     START TRANSACTION;
+	     LOCK TABLES car WRITE;
         UPDATE car
         SET rental_availability = FALSE
         WHERE car_no = carNo;
-        
+        COMMIT;
 		  SELECT COUNT(*)+1
         INTO reservationListCount
         FROM Rental_record;

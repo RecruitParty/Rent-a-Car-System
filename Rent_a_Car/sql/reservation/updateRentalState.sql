@@ -6,12 +6,12 @@ CREATE PROCEDURE updateRentalState()
 BEGIN
 
     UPDATE Rental_record
-    SET rental_state = '대여중'
+    SET rental_state = '진행중'
     WHERE rental_state = '예약완료' AND rental_date = CURDATE();
 
     UPDATE Rental_record
     SET rental_state = '연체'
-    WHERE rental_state = '대여중' AND due_date < CURDATE();
+    WHERE rental_state = '진행중' AND due_date < CURDATE();
 
     UPDATE car c
     JOIN Rental r
@@ -19,7 +19,7 @@ BEGIN
     JOIN rental_record rr
     	ON r.rental_id = rr.rental_id
     SET c.rental_availability = TRUE
-    WHERE rr.rental_state IN ('반납완료', '반납완료(연체됨)') AND CURDATE() > DATE_ADD(rr.actual_return_date, INTERVAL 2 DAY);
+    WHERE rr.rental_state IN ('완료', '완료(연체됨)') AND CURDATE() > DATE_ADD(rr.actual_return_date, INTERVAL 2 DAY);
 
 END //
 
