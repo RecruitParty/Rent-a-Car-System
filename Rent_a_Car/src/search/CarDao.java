@@ -1,50 +1,18 @@
 package search;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Date;
+import java.util.List;
 
-import db.DBConnector;
 import model.Car;
 
-public class CarDao {
-	//차량 종류 검색
-	public List<Car> searchByType(String type) {
+public interface CarDAO {
 
-	    List<Car> carList = new ArrayList<>();
+    // 차량 종류 검색
+    List<Car> searchByType(String carType);
 
-	    String sql =
-	        "SELECT * FROM car WHERE car_type = ?";
-
-	    try(Connection conn = DBConnector.getConnection();
-	        PreparedStatement pstmt = conn.prepareStatement(sql)
-	    ) {
-
-	        pstmt.setString(1, type);
-
-	        ResultSet rs = pstmt.executeQuery();
-
-	        while(rs.next()) {
-
-	            Car car = new Car();
-
-	            car.setCar_no(rs.getString("car_no"));
-
-	            car.setCar_type(rs.getString("car_type"));
-
-	            car.setRental_availabiliy(rs.getBoolean("rental_availability"));
-
-	            car.setSpot_no(rs.getInt("spot_no"));
-
-	            car.setDaily_rental_fee(rs.getInt("daily_rental_fee"));
-
-	            carList.add(car);
-	        }
-
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
-
-	    return carList;
-	}
-
+    // 차량 종류 + 대여 기간으로 대여 가능 여부 확인
+    List<Car> checkRentalAvailability(
+            String carType,
+            Date rentalDate,
+            Date returnDate);
 }
