@@ -9,7 +9,7 @@ import java.util.List;
 import db.DBConnector;
 import model.Spot;
 
-public class SpotDAOImpl {
+public class SpotDAOImpl implements SpotDAO{
 	// 존재하는 지점 조회
 	public List<Spot> getAllSpots() {
 
