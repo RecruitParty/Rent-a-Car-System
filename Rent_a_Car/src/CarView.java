@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import db.DBConnector;
 
-// 지점 관리 기능 - 보유 차량 목록 조회 (이 파일 하나로 실행됩니다)
+// 지점 관리 기능 - 보유 차량 목록 조회
 public class CarView {
 
     public static void main(String[] args) {
