@@ -11,12 +11,14 @@ public class RecordDTO {
 	private LocalDate expected_return_date;
 	private LocalDate actual_return_date;
 	private String rental_state;
+	private int daily_rental_fee;
+	private int total_fee;
 	
 	public RecordDTO() {}
 	
 	public RecordDTO(int rental_id, String car_no, int rental_spot, int return_spot, 
 			LocalDate rental_date, LocalDate expected_return_date, LocalDate actual_return_date, 
-			String rental_state) {
+			String rental_state, int daily_rental_fee) {
 		this.rental_id = rental_id;
 		this.car_no = car_no;
 		this.rental_spot = rental_spot;
@@ -25,6 +27,7 @@ public class RecordDTO {
 		this.expected_return_date = expected_return_date;
 		this.actual_return_date = actual_return_date;
 		this.rental_state = rental_state;
+		this.daily_rental_fee = daily_rental_fee;
 	}
 	
 	public int getRental_id() {
@@ -74,6 +77,18 @@ public class RecordDTO {
 	}
 	public void setRental_state(String rental_state) {
 		this.rental_state = rental_state;
+	}
+	public int getDaily_rental_fee() {
+		return daily_rental_fee;
+	}
+	public void setDaily_rental_fee(int daily_rental_fee) {
+		this.daily_rental_fee = daily_rental_fee;
+	}
+	public int getTotal_fee() {
+		return total_fee;
+	}
+	public void setTotal_fee(int total_fee) {
+		this.total_fee = total_fee;
 	}
 	
 	
