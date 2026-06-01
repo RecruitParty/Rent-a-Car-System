@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import db.DBConnector;
 
 public class RentalDAOImpl implements RecordDAO{
 	

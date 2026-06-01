@@ -4,7 +4,7 @@ import java.util.List;
 
 import model.Spot;
 
-public interface SpotDAO {
+public interface SpotDao {
 	// 존재하는 지점 조회
     List<Spot> getAllSpots();
 }

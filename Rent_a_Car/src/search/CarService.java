@@ -6,10 +6,10 @@ import model.Car;
 import model.Spot;
 
 public class CarService {
-	private final CarDAO carDAO;
-	private final SpotDAO spotDAO;
+	private final CarDao carDAO;
+	private final SpotDao spotDAO;
     
-    public CarService(CarDAO carDAO, SpotDAO spotDAO) {
+    public CarService(CarDao carDAO, SpotDao spotDAO) {
         this.carDAO = carDAO;
         this.spotDAO = spotDAO;
     }

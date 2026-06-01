@@ -5,7 +5,7 @@ import java.util.List;
 
 import model.Car;
 
-public interface CarDAO {
+public interface CarDao {
 
     // 차량 종류 검색
     List<Car> searchByType(String carType);
