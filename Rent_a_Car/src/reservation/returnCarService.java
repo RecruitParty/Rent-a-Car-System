@@ -1,211 +1,283 @@
 package reservation;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
-
 import db.DBConnector;
+import model.Rental;
+import model.RentalRecord;
 
 public class returnCarService {
-
-    static Connection conn = null;
 
     public static void returnCar(
             int cusID,
             String carNo,
             int returnDest,
-            Date actualReturnDate
-    ) {
+            Date actualReturnDate) {
+
+        Connection conn = null;
 
         try {
 
             conn = DBConnector.getConnection();
 
-            System.out.println("DB 연결 성공");
-
             conn.setAutoCommit(false);
 
             String userSql =
-                    "SELECT * FROM customer " +
+                    "SELECT 1 " +
+                    "FROM customer " +
                     "WHERE user_id = ?";
 
-            PreparedStatement userStmt = conn.prepareStatement(userSql);
+            try (PreparedStatement userStmt = conn.prepareStatement(userSql)) {
 
-            userStmt.setInt(1, cusID);
+                userStmt.setInt(1, cusID);
 
-            ResultSet userRs = userStmt.executeQuery();
+                ResultSet rs = userStmt.executeQuery();
 
-            if(!userRs.next()) {
-                conn.rollback();
+                if (!rs.next()) {
 
-                System.out.println("등록되지 않는 아이디입니다.");
+                    conn.rollback();
 
-                return;
+                    System.out.println("등록되지 않은 고객입니다.");
 
+                    return;
+                }
             }
 
-            String checkSql =
+            boolean rentState;
+
+            String carSql =
                     "SELECT rental_availability " +
                     "FROM car " +
-                    "WHERE car_no = ?";
+                    "WHERE car_no = ? " +
+                    "FOR UPDATE";
 
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            try (PreparedStatement carStmt = conn.prepareStatement(carSql)) {
 
-            checkStmt.setString(1, carNo);
+                carStmt.setString(1, carNo);
 
-            ResultSet rs = checkStmt.executeQuery();
+                ResultSet rs = carStmt.executeQuery();
 
-            boolean rentState = true;
+                if (!rs.next()) {
 
-            if(rs.next()) {
+                    conn.rollback();
+
+                    System.out.println("존재하지 않는 차량입니다.");
+
+                    return;
+                }
 
                 rentState = rs.getBoolean("rental_availability");
             }
-            else {
+
+            if (rentState) {
 
                 conn.rollback();
 
-                System.out.println("존재하지 않는 차량입니다.");
+                System.out.println("대여중인 차량이 아닙니다.");
 
                 return;
             }
 
-            if(rentState) {
+            Rental rental = null;
 
-                conn.rollback();
-
-                System.out.println("대여되지 않은 차량입니다.");
-
-                return;
-            }
-
-            String reserveSql =
-                    "SELECT r.rental_id " +
-                    "FROM Rental r " +
-                    "JOIN Rental_record rr " +
+            String rentalSql =
+                    "SELECT r.* " +
+                    "FROM rental r " +
+                    "JOIN rental_record rr " +
                     "ON r.rental_id = rr.rental_id " +
                     "WHERE r.user_id = ? " +
                     "AND r.car_no = ? " +
-                    "AND rr.rental_state IN ('진행중', '연체')";
+                    "AND rr.rental_state IN ('진행중','연체')";
 
-            PreparedStatement reserveStmt = conn.prepareStatement(reserveSql);
+            try (PreparedStatement rentalStmt = conn.prepareStatement(rentalSql)) {
 
-            reserveStmt.setInt(1, cusID);
-            reserveStmt.setString(2, carNo);
+                rentalStmt.setInt(1, cusID);
+                rentalStmt.setString(2, carNo);
 
-            ResultSet reserveRs = reserveStmt.executeQuery();
+                ResultSet rs = rentalStmt.executeQuery();
 
-            int reserveNo = 0;
+                if (rs.next()) {
 
-            if(reserveRs.next()) {
-                reserveNo = reserveRs.getInt("rental_id");
+                    rental = 
+                    		new Rental(
+                                    rs.getInt("rental_id"),
+                                    rs.getInt("user_id"),
+                                    rs.getString("car_no")
+                            );
+                }
             }
-            else{
-            	conn.rollback();
 
-                System.out.println("취소가능한 예약이 없습니다.");
-                
+            if (rental == null) {
+
+                conn.rollback();
+
+                System.out.println("반납 가능한 대여 내역이 없습니다.");
+
                 return;
             }
 
-            String infoSql =
-                    "SELECT rental_date, rental_state " +
-                    "FROM Rental_record " +
+            RentalRecord rentalRecord = null;
+
+            String recordSql =
+                    "SELECT * " +
+                    "FROM rental_record " +
                     "WHERE rental_id = ?";
 
-            PreparedStatement infoStmt = conn.prepareStatement(infoSql);
+            try (PreparedStatement recordStmt = conn.prepareStatement(recordSql)) {
 
-            infoStmt.setInt(1, reserveNo);
+                recordStmt.setInt(
+                        1,
+                        rental.getRental_id());
 
-            ResultSet infoRs = infoStmt.executeQuery();
+                ResultSet rs = recordStmt.executeQuery();
 
-            Date startDate = null;
-            String rentalState = "";
+                if (rs.next()) {
 
-            if(infoRs.next()) {
+                    Date actualDate = rs.getDate("actual_return_date");
 
-                startDate = infoRs.getDate("rental_date");
-
-                rentalState = infoRs.getString("rental_state");
+                    rentalRecord =
+                            new RentalRecord(
+                                    rs.getInt("rental_id"),
+                                    rs.getInt("rental_spot"),
+                                    rs.getInt("return_spot"),
+                                    rs.getDate("rental_date")
+                                            .toLocalDate(),
+                                    rs.getDate("expected_return_date").toLocalDate(),
+                                    actualDate == null
+                                            ? null
+                                            : actualDate.toLocalDate(),
+                                    rs.getString("rental_state")
+                            );
+                }
             }
 
-            String updateSql = "";
+            if (rentalRecord == null) {
 
-            if(rentalState.equals("연체")) {
+                conn.rollback();
 
-                updateSql =
-                        "UPDATE Rental_record " +
-                        "SET rental_state = '완료(연체됨)', " +
-                        "return_dest = ?, " +
-                        "actual_return_date = ? " +
-                        "WHERE rental_id = ?";
+                System.out.println("대여 정보를 찾을 수 없습니다.");
+
+                return;
+            }
+
+            if ("연체".equals(rentalRecord.getRental_state())) {
+
+                rentalRecord.setRental_state("완료(연체됨)");
 
             } else {
 
-                updateSql =
-                        "UPDATE Rental_record " +
-                        "SET rental_state = '완료', " +
-                        "return_dest = ?, " +
-                        "actual_return_date = ? " +
-                        "WHERE rental_id = ?";
+                rentalRecord.setRental_state("완료");
             }
 
-            PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+            rentalRecord.setReturn_spot(returnDest);
 
-            updateStmt.setInt(1, returnDest);
-            updateStmt.setDate(2, actualReturnDate);
-            updateStmt.setInt(3, reserveNo);
+            rentalRecord.setActual_return_date(actualReturnDate.toLocalDate());
 
-            int updated = updateStmt.executeUpdate();
+            String updateRecordSql =
+                    "UPDATE rental_record " +
+                    "SET rental_state = ?, " +
+                    "return_spot = ?, " +
+                    "actual_return_date = ? " +
+                    "WHERE rental_id = ?";
 
-            if(updated <= 0) {
-                conn.rollback();
+            try (PreparedStatement updateStmt =
+                         conn.prepareStatement(
+                                 updateRecordSql)) {
 
-                System.out.println("반납 처리 실패");
+                updateStmt.setString(
+                        1,
+                        rentalRecord.getRental_state());
 
-                return;
+                updateStmt.setInt(
+                        2,
+                        rentalRecord.getReturn_spot());
+
+                updateStmt.setDate(
+                        3,
+                        Date.valueOf(
+                                rentalRecord
+                                        .getActual_return_date()));
+
+                updateStmt.setInt(
+                        4,
+                        rentalRecord.getRental_id());
+
+                if (updateStmt.executeUpdate() == 0) {
+
+                    conn.rollback();
+
+                    System.out.println("반납 처리 실패");
+
+                    return;
+                }
             }
 
-            String priceSql =
+            String availableSql =
+                    "UPDATE car " +
+                    "SET rental_availability = TRUE, " +
+                    "spot_no = ? " +
+                    "WHERE car_no = ?";
+
+            try (PreparedStatement carUpdateStmt =
+                         conn.prepareStatement(availableSql)) {
+
+                carUpdateStmt.setInt(
+                        1,
+                        returnDest);
+
+                carUpdateStmt.setString(
+                        2,
+                        carNo);
+
+                carUpdateStmt.executeUpdate();
+            }
+
+            int dailyFee = 0;
+
+            String feeSql =
                     "SELECT daily_rental_fee " +
                     "FROM car " +
                     "WHERE car_no = ?";
 
-            PreparedStatement priceStmt = conn.prepareStatement(priceSql);
+            try (PreparedStatement feeStmt = conn.prepareStatement(feeSql)) {
 
-            priceStmt.setString(1, carNo);
+                feeStmt.setString(1, carNo);
 
-            ResultSet priceRs = priceStmt.executeQuery();
+                ResultSet rs = feeStmt.executeQuery();
 
-            int dayPrice = 0;
+                if (rs.next()) {
 
-            if(priceRs.next()) {
-
-                dayPrice = priceRs.getInt("daily_rental_fee");
+                    dailyFee = rs.getInt("daily_rental_fee");
+                }
             }
-            long diff = (actualReturnDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
-            int totalPrice = (int)diff * dayPrice;
-            
+            long rentalDays =
+                    actualReturnDate.toLocalDate()
+                                    .toEpochDay()
+                    -
+                    rentalRecord.getRental_date()
+                                .toEpochDay();
+
+            int totalPrice = (int) rentalDays * dailyFee;
+
             conn.commit();
 
             System.out.println("반납이 완료되었습니다.");
 
             System.out.println("총 금액 : " + totalPrice);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             try {
 
-                if(conn != null) {
+                if (conn != null) {
 
                     conn.rollback();
-
-                    System.out.println("트랜잭션 롤백");
                 }
 
-            } catch(Exception ex) {
+            } catch (Exception ex) {
 
                 ex.printStackTrace();
             }
@@ -216,14 +288,14 @@ public class returnCarService {
 
             try {
 
-                if(conn != null) {
+                if (conn != null) {
 
                     conn.setAutoCommit(true);
 
                     conn.close();
                 }
 
-            } catch(Exception e) {
+            } catch (Exception e) {
 
                 e.printStackTrace();
             }

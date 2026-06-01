@@ -40,11 +40,11 @@ BEGIN
     IF rentState = FALSE THEN
 		  IF rentalState = '연체' THEN
 		  	UPDATE Rental_record
-        	SET rental_state = '완료(연체됨)', return_dest = returnDest, actual_return_date = actualReturnDate
+        	SET rental_state = '완료(연체됨)', return_spot = returnDest, actual_return_date = actualReturnDate
         	WHERE rental_id = reserveNo;
         ELSE 
       	UPDATE Rental_record
-        	SET rental_state = '완료', return_dest = returnDest, actual_return_date = actualReturnDate
+        	SET rental_state = '완료', return_spot = returnDest, actual_return_date = actualReturnDate
         	WHERE rental_id = reserveNo;
         END IF;
 

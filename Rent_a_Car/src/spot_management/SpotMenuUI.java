@@ -20,7 +20,14 @@ public class SpotMenuUI {
             System.out.println("0. 뒤로가기");
             System.out.print("메뉴 선택 : ");
 
-            int menu = sc.nextInt();
+            int menu;
+        	try {
+        		menu = sc.nextInt();
+        	}
+        	catch (NumberFormatException e) {
+        	    System.out.println("메뉴는 숫자만 입력 가능합니다.");
+        	    continue;
+            }
 
             if(menu == 1) {
                 // 지점 목록 먼저 보여주기
@@ -35,8 +42,15 @@ public class SpotMenuUI {
                 }
 
                 // 지점 번호 입력받기
-                System.out.print("\n조회할 지점 번호 입력 : ");
-                int spotNo = sc.nextInt();
+                int spotNo;
+                try {
+	                System.out.print("\n조회할 지점 번호 입력 : ");
+	                spotNo = sc.nextInt();
+                }
+                catch (NumberFormatException e) {
+            	    System.out.println("지점번호는 숫자만 입력 가능합니다.");
+            	    continue;
+                }
 
                 // 해당 지점 차량 출력
                 List<Car> carList = service.getCarsBySpot(spotNo);

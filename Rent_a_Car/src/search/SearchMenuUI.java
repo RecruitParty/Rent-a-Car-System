@@ -22,8 +22,15 @@ public class SearchMenuUI {
             System.out.println("3. 대여 가능 여부 확인");
             System.out.println("0. 뒤로가기");
             System.out.print("메뉴 선택 : ");
-
-            int menu = sc.nextInt();
+            
+            int menu;
+            try {
+            	menu = sc.nextInt();
+            }
+            catch (NumberFormatException e) {
+        	    System.out.println("메뉴는 숫자만 입력 가능합니다.");
+        	    continue;
+            }
 
             if(menu == 1) {
                 System.out.print("차량 종류 입력 : ");
@@ -53,10 +60,18 @@ public class SearchMenuUI {
             else if(menu == 3) {
                 System.out.print("차량 종류 입력 : ");
                 String carType = sc.next();
-                System.out.print("대여 날짜 입력(YYYY-MM-DD) : ");
-                Date rentalDate = Date.valueOf(sc.next());
-                System.out.print("반납 날짜 입력(YYYY-MM-DD) : ");
-                Date returnDate = Date.valueOf(sc.next());
+                Date rentalDate;
+                Date returnDate;
+                try {
+	                System.out.print("대여 날짜 입력(YYYY-MM-DD) : ");
+	                rentalDate = Date.valueOf(sc.next());
+	                System.out.print("반납 날짜 입력(YYYY-MM-DD) : ");
+	                returnDate = Date.valueOf(sc.next());
+                }
+                catch (IllegalArgumentException e) {
+                    System.out.println("날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요.");
+                    continue;
+                }
                 List<Car> availableCars = service.checkRentalAvailability(carType, rentalDate, returnDate);
                 System.out.println("\n=== 예약 가능 차량 ===");
                 if(availableCars.isEmpty()) {
