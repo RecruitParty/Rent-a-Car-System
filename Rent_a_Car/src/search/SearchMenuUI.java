@@ -53,11 +53,40 @@ public class SearchMenuUI {
             else if(menu == 3) {
                 System.out.print("차량 종류 입력 : ");
                 String carType = sc.next();
-                System.out.print("대여 날짜 입력(YYYY-MM-DD) : ");
-                Date rentalDate = Date.valueOf(sc.next());
-                System.out.print("반납 날짜 입력(YYYY-MM-DD) : ");
-                Date returnDate = Date.valueOf(sc.next());
-                List<Car> availableCars = service.checkRentalAvailability(carType, rentalDate, returnDate);
+
+                Date rentalDate = null;
+                while(true) {
+                    try {
+                        System.out.print("대여 날짜 입력(YYYY-MM-DD) : ");
+                        rentalDate = Date.valueOf(sc.next());
+                        break;
+                    } catch(IllegalArgumentException e) {
+                        System.out.println("날짜 형식이 올바르지 않습니다.");
+                    }
+                    
+                }
+                Date returnDate = null;
+                while(true) {
+                    try {
+                        System.out.print("반납 날짜 입력(YYYY-MM-DD) : ");
+                        returnDate = Date.valueOf(sc.next());
+                        break;
+                    } catch(IllegalArgumentException e) {
+                        System.out.println("날짜 형식이 올바르지 않습니다.");
+                    }
+                }
+                
+                List<Car> availableCars = null;
+                try {
+                	availableCars = service.checkRentalAvailability(carType, rentalDate, returnDate);
+	            }
+	            catch(IllegalArgumentException e) {
+	
+	                System.out.println(
+	                        "\n오류 : " + e.getMessage());
+	                continue;
+	            }
+	                
                 System.out.println("\n=== 예약 가능 차량 ===");
                 if(availableCars.isEmpty()) {
                     System.out.println("예약 가능한 차량이 없습니다.");
