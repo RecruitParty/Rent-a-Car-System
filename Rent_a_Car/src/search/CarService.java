@@ -18,7 +18,7 @@ public class CarService {
         return carDAO.searchByType(carType);
     }
 
-    // 존재하는 지점 조회
+    // 존재하는 모든 지점 조회
     public List<Spot> getAllSpots() {
         return spotDAO.getAllSpots();
     }

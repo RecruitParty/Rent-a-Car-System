@@ -39,34 +39,6 @@ public class SpotDAOImpl implements SpotDao{
 
 	    return spotList;
 	}
-	
-	
-	@Override
-	public List<Car> getCarsBySpot(int spotNo) {
-		List<Car> carList = new ArrayList<>();
-    
-    String sql = "SELECT * FROM car WHERE spot_no = ?";
-    
-    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, spotNo);
-        ResultSet rs = pstmt.executeQuery();
-        
-        while(rs.next()) {
-            Car car = new Car();
-            car.setCar_no(rs.getString("car_no"));
-            car.setCar_type(rs.getString("car_type"));
-            car.setRental_availabiliy(rs.getBoolean("rental_availability"));
-            car.setSpot_no(rs.getInt("spot_no"));
-            car.setDaily_rental_fee(rs.getInt("daily_rental_fee"));
-            carList.add(car);
-        }
-        
-    } catch(Exception e) {
-        e.printStackTrace();
-    }
-    
-    return carList;
-	}
 
 
 }

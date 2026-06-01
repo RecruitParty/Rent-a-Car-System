@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 import search.SearchMenuUI;
-import search.SpotMenuUI;
+import spot_management.SpotMenuUI;
 import reservation.ReservationMenuUI;
 import Rental_record.RecordMenuUi;
 
