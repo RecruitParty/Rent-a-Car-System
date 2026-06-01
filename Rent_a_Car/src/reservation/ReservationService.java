@@ -4,7 +4,12 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+
 import db.DBConnector;
+import model.Car;
+import model.Rental;
+import model.RentalRecord;
 
 public class ReservationService {
 
@@ -31,20 +36,16 @@ public class ReservationService {
                     "SELECT * FROM customer " +
                     "WHERE user_id = ?";
 
-            PreparedStatement userStmt =
-                    conn.prepareStatement(userSql);
+            PreparedStatement userStmt = conn.prepareStatement(userSql);
 
             userStmt.setInt(1, cusID);
 
-            ResultSet userRs =
-                    userStmt.executeQuery();
+            ResultSet userRs = userStmt.executeQuery();
 
             if(!userRs.next()) {
                 conn.rollback();
 
-                System.out.println(
-                        "등록되지 않는 아이디입니다."
-                );
+                System.out.println("등록되지 않는 아이디입니다.");
 
 
                 return;
@@ -175,7 +176,7 @@ public class ReservationService {
                 return;
             }
             conn.commit();
-
+            
             System.out.println("예약이 완료되었습니다.");
 
         } catch(Exception e) {

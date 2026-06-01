@@ -36,12 +36,9 @@ public class Main {
                 System.out.print("반납 위치 입력 : ");
                 int endLocation = sc.nextInt();
 
-                System.out.print(
-                        "대여 날짜 입력(YYYY-MM-DD) : "
-                );
+                System.out.print("대여 날짜 입력(YYYY-MM-DD) : ");
 
-                Date startDate =
-                        Date.valueOf(sc.next());
+                Date startDate = Date.valueOf(sc.next());
 
                 System.out.print(
                         "반납 예정 날짜 입력(YYYY-MM-DD) : "
