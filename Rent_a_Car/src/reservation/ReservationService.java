@@ -7,13 +7,10 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 
 import db.DBConnector;
-import model.Car;
 import model.Rental;
 import model.RentalRecord;
 
 public class ReservationService {
-
-    static Connection conn = null;
 
     public static void reservation(
             int cusID,
@@ -21,70 +18,93 @@ public class ReservationService {
             int startLocation,
             int endLocation,
             Date startDate,
-            Date dueDate
-    ) {
+            Date dueDate) {
+
+        Connection conn = null;
 
         try {
 
             conn = DBConnector.getConnection();
 
-            System.out.println("DB 연결 성공");
-
             conn.setAutoCommit(false);
-            
-            String userSql =
-                    "SELECT * FROM customer " +
-                    "WHERE user_id = ?";
 
-            PreparedStatement userStmt = conn.prepareStatement(userSql);
+            LocalDate rentalDate =
+                    startDate.toLocalDate();
 
-            userStmt.setInt(1, cusID);
+            LocalDate expectedReturnDate =
+                    dueDate.toLocalDate();
 
-            ResultSet userRs = userStmt.executeQuery();
+            if (expectedReturnDate.isBefore(rentalDate)) {
 
-            if(!userRs.next()) {
-                conn.rollback();
-
-                System.out.println("등록되지 않는 아이디입니다.");
-
+                System.out.println("반납 예정일은 대여일보다 빠를 수 없습니다.");
 
                 return;
+            }
+            if (!expectedReturnDate.isAfter(rentalDate)) {
 
+                System.out.println("반납 예정일은 대여일 이후여야 합니다.");
+
+                return;
+            }
+            LocalDate today = LocalDate.now();
+
+            if (rentalDate.isBefore(today)) {
+
+                System.out.println("과거 날짜로 예약할 수 없습니다.");
+
+                return;
+            }
+            
+            String userSql =
+                    "SELECT 1 " +
+                    "FROM customer " +
+                    "WHERE user_id = ?";
+
+            try (PreparedStatement userStmt = conn.prepareStatement(userSql)) {
+
+                userStmt.setInt(1, cusID);
+
+                ResultSet userRs = userStmt.executeQuery();
+
+                if (!userRs.next()) {
+
+                    conn.rollback();
+
+                    System.out.println("등록되지 않은 고객입니다.");
+
+                    return;
+                }
             }
 
             String checkSql =
                     "SELECT rental_availability " +
                     "FROM car " +
-                    "WHERE car_no = ? FOR UPDATE";
+                    "WHERE car_no = ? " +
+                    "FOR UPDATE";
 
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
 
-            checkStmt.setString(1, carNo);
+                checkStmt.setString(1, carNo);
 
-            ResultSet rs = checkStmt.executeQuery();
+                ResultSet rs = checkStmt.executeQuery();
 
-            boolean rentState = true;
+                if (!rs.next()) {
 
-            if(rs.next()) {
+                    conn.rollback();
 
-                rentState = rs.getBoolean("rental_availability");
+                    System.out.println("존재하지 않는 차량입니다.");
 
-            } else {
+                    return;
+                }
 
-                conn.rollback();
+                if (!rs.getBoolean("rental_availability")) {
 
-                System.out.println("존재하지 않는 차량입니다.");
+                    conn.rollback();
 
-                return;
-            }
+                    System.out.println("이미 대여중인 차량입니다.");
 
-            if(!rentState) {
-
-                conn.rollback();
-
-                System.out.println("이미 대여중인 차량입니다.");
-
-                return;
+                    return;
+                }
             }
 
             String updateCarSql =
@@ -92,105 +112,155 @@ public class ReservationService {
                     "SET rental_availability = FALSE " +
                     "WHERE car_no = ?";
 
-            PreparedStatement updateStmt = conn.prepareStatement(updateCarSql);
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateCarSql)) {
 
-            updateStmt.setString(1, carNo);
+                updateStmt.setString(1, carNo);
 
-            int update = updateStmt.executeUpdate();
+                int updateCount = updateStmt.executeUpdate();
 
-            if(update <= 0) {
+                if (updateCount == 0) {
 
-                conn.rollback();
+                    conn.rollback();
 
-                System.out.println("차량 상태 변경에 실패하셨습니다.");
+                    System.out.println("차량 상태 변경 실패");
 
-                return;
+                    return;
+                }
             }
 
-            String countSql =
-                    "SELECT COUNT(*) + 1 AS next_id " +
-                    "FROM Rental_record";
+            int rentalId = 0;
 
-            PreparedStatement countStmt = conn.prepareStatement(countSql);
+            String idSql =
+                    "SELECT COALESCE(MAX(rental_id),0)+1 " +
+                    "AS next_id " +
+                    "FROM rental";
 
-            ResultSet countRs = countStmt.executeQuery();
+            try (PreparedStatement idStmt = conn.prepareStatement(idSql);
 
-            int reservationID = 0;
+                 ResultSet rs = idStmt.executeQuery()) {
 
-            if(countRs.next()) {
+                if (rs.next()) {
 
-                reservationID = countRs.getInt("next_id");
+                    rentalId = rs.getInt("next_id");
+                }
             }
-            
+
+            Rental rental =
+                    new Rental(
+                            rentalId,
+                            cusID,
+                            carNo
+                    );
+
+            RentalRecord rentalRecord =
+                    new RentalRecord(
+                            rentalId,
+                            startLocation,
+                            endLocation,
+                            startDate.toLocalDate(),
+                            dueDate.toLocalDate(),
+                            null,
+                            "예약완료"
+                    );
+
             String rentalSql =
-                    "INSERT INTO Rental(" +
+                    "INSERT INTO rental(" +
                     "rental_id, " +
                     "user_id, " +
                     "car_no" +
                     ") VALUES (?, ?, ?)";
 
-            PreparedStatement rentalStmt = conn.prepareStatement(rentalSql);
+            try (PreparedStatement rentalStmt = conn.prepareStatement(rentalSql)) {
 
-            rentalStmt.setInt(1, reservationID);
-            rentalStmt.setInt(2, cusID);
-            rentalStmt.setString(3, carNo);
+                rentalStmt.setInt(
+                        1,
+                        rental.getRental_id());
 
-            int insertRental = rentalStmt.executeUpdate();
+                rentalStmt.setInt(
+                        2,
+                        rental.getUser_id());
 
-            if(insertRental <= 0) {
+                rentalStmt.setString(
+                        3,
+                        rental.getCar_no());
 
-                conn.rollback();
+                int result = rentalStmt.executeUpdate();
 
-                System.out.println("Rental에 저장에 실패하셨습니다.");
+                if (result == 0) {
 
-                return;
+                    conn.rollback();
+
+                    System.out.println("Rental 저장 실패");
+
+                    return;
+                }
             }
-            
+
             String recordSql =
-                    "INSERT INTO Rental_record(" +
+                    "INSERT INTO rental_record(" +
                     "rental_id, " +
-                    "rental_dest, " +
-                    "return_dest, " +
+                    "rental_spot, " +
+                    "return_spot, " +
                     "rental_date, " +
                     "expected_return_date, " +
                     "rental_state" +
                     ") VALUES (?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement recordStmt = conn.prepareStatement(recordSql);
+            try (PreparedStatement recordStmt =
+                         conn.prepareStatement(recordSql)) {
 
-            recordStmt.setInt(1, reservationID);
-            recordStmt.setInt(2, startLocation);
-            recordStmt.setInt(3, endLocation);
-            recordStmt.setDate(4, startDate);
-            recordStmt.setDate(5, dueDate);
-            recordStmt.setString(6, "예약완료");
+                recordStmt.setInt(
+                        1,
+                        rentalRecord.getRental_id());
 
-            int insertRecord = recordStmt.executeUpdate();
+                recordStmt.setInt(
+                        2,
+                        rentalRecord.getRental_spot());
 
-            if(insertRecord <= 0) {
+                recordStmt.setInt(
+                        3,
+                        rentalRecord.getReturn_spot());
 
-                conn.rollback();
+                recordStmt.setDate(
+                        4,
+                        Date.valueOf(
+                                rentalRecord.getRental_date()));
 
-                System.out.println("Rental_record에 저장에 실패하셨습니다.");
+                recordStmt.setDate(
+                        5,
+                        Date.valueOf(
+                                rentalRecord.getExpected_return_date()));
 
-                return;
-            }
-            conn.commit();
-            
-            System.out.println("예약이 완료되었습니다.");
+                recordStmt.setString(
+                        6,
+                        rentalRecord.getRental_state());
 
-        } catch(Exception e) {
+                int result = recordStmt.executeUpdate();
 
-            try {
-
-                if(conn != null) {
+                if (result == 0) {
 
                     conn.rollback();
 
-                    System.out.println("트랜잭션 롤백");
+                    System.out.println("RentalRecord 저장 실패");
+
+                    return;
+                }
+            }
+
+            conn.commit();
+
+            System.out.println("예약이 완료되었습니다.");
+
+        } catch (Exception e) {
+
+            try {
+
+                if (conn != null) {
+
+                    conn.rollback();
                 }
 
-            } catch(Exception ex) {
+            } catch (Exception ex) {
 
                 ex.printStackTrace();
             }
@@ -201,14 +271,14 @@ public class ReservationService {
 
             try {
 
-                if(conn != null) {
+                if (conn != null) {
 
                     conn.setAutoCommit(true);
 
                     conn.close();
                 }
 
-            } catch(Exception e) {
+            } catch (Exception e) {
 
                 e.printStackTrace();
             }

@@ -22,8 +22,15 @@ public class SearchMenuUI {
             System.out.println("3. 대여 가능 여부 확인");
             System.out.println("0. 뒤로가기");
             System.out.print("메뉴 선택 : ");
-
-            int menu = sc.nextInt();
+            
+            int menu;
+            try {
+            	menu = sc.nextInt();
+            }
+            catch (NumberFormatException e) {
+        	    System.out.println("메뉴는 숫자만 입력 가능합니다.");
+        	    continue;
+            }
 
             if(menu == 1) {
                 System.out.print("차량 종류 입력 : ");
