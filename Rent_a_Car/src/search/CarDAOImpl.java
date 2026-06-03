@@ -66,20 +66,18 @@ public class CarDAOImpl implements CarDao {
 	    List<Car> carList = new ArrayList<>();
 
 	    String sql =
-	        "SELECT * " +
-	        "FROM car " +
-	        "WHERE car_type = ? " +
-	        "AND car_no NOT IN ( " +
-	        "   SELECT r.car_no " +
-	        "   FROM rental r " +
-
-	        "   JOIN rental_record rr " +
-	        "   ON r.rental_id = rr.rental_id " +
-
-	        "   WHERE rr.rental_date <= ? " +
-	        "   AND rr.expected_return_date >= ? " +
-
-	        ")";
+	    	    "SELECT * " +
+	    	    "FROM car c " +
+	    	    "WHERE c.car_type = ? " +
+	    	    "AND c.car_no NOT IN ( " +
+	    	    "   SELECT r.car_no " +
+	    	    "   FROM rental r " +
+	    	    "   JOIN rental_record rr " +
+	    	    "   ON r.rental_id = rr.rental_id " +
+	    	    "   WHERE rr.rental_state IN ('진행중', '완료') " +
+	    	    "   AND rr.rental_date <= ? " +
+	    	    "   AND rr.expected_return_date >= ? " +
+	    	    ")";
 
 	    try(PreparedStatement pstmt =conn.prepareStatement(sql)) {
 	        // 차량 종류
