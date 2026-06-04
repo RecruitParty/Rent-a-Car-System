@@ -12,7 +12,7 @@ import db.DBConnector;
 public class ReservationMenuUI {
     private final Scanner sc = new Scanner(System.in);
 
-    public void start() {
+    public void start() throws Exception {
         while(true) {
             System.out.println("\n===== 예약 시스템 =====");
             System.out.println("1. 차량 예약");
