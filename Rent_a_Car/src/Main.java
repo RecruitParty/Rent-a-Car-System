@@ -1,7 +1,7 @@
 import java.sql.Connection;
 import db.DBConnector;
 import search.*;
-import reservation.ReservationMenuUI;
+import ui.MainFrame;
 import Rental_record.*;
 
 public class Main {
@@ -9,34 +9,23 @@ public class Main {
         Connection conn = DBConnector.getConnection();
 
         // Search 관련
-        CarDao carDAO = new CarDAOImpl(conn);
-        SpotDao spotDAO = new SpotDAOImpl(conn);
+        CarDao carDAO = new CarDAOImpl();
+        SpotDao spotDAO = new SpotDAOImpl();
         CarService carService = new CarService(carDAO, spotDAO);
 
         // Rental_record 관련
-        RecordDAO recordDAO = new RentalDAOImpl(conn);
+        RecordDAO recordDAO = new RentalDAOImpl();
         RentalService rentalService = new RentalService(recordDAO);
         
         //spot 관련
-        spot_management.SpotMDAO spotMgmtDAO = new spot_management.SpotMDAOImpl(conn);
+        spot_management.SpotMDAO spotMgmtDAO = new spot_management.SpotMDAOImpl();
         spot_management.SpotService spotService = new spot_management.SpotService(spotMgmtDAO);
-        spot_management.SpotMenuUI spotMenuUI = new spot_management.SpotMenuUI(spotService);
-
-
-        // MenuUI 생성
-        SearchMenuUI searchMenuUI = new SearchMenuUI(carService);
-        ReservationMenuUI reservationMenuUI = new ReservationMenuUI();
-        RecordMenuUi recordMenuUI = new RecordMenuUi(rentalService);
         
+        reservation.updateRentalState.updateRentalState();
         // 실행
-        MainMenuUI mainMenuUI = new MainMenuUI(
-            searchMenuUI,
-            reservationMenuUI,
-            recordMenuUI,
-            spotMenuUI
-        );
-        
-        mainMenuUI.start();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            new MainFrame(carService, null, rentalService, spotService);
+        });
         
         conn.close();
     }

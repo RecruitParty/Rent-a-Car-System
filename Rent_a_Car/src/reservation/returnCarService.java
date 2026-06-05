@@ -10,7 +10,7 @@ import model.RentalRecord;
 
 public class returnCarService {
 
-    public static void returnCar(
+    public static boolean returnCar(
             int cusID,
             String carNo,
             int returnDest,
@@ -41,7 +41,7 @@ public class returnCarService {
 
                     System.out.println("등록되지 않은 고객입니다.");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -65,7 +65,7 @@ public class returnCarService {
 
                     System.out.println("존재하지 않는 차량입니다.");
 
-                    return;
+                    return false;
                 }
 
                 rentState = rs.getBoolean("rental_availability");
@@ -77,7 +77,7 @@ public class returnCarService {
 
                 System.out.println("대여중인 차량이 아닙니다.");
 
-                return;
+                return false;
             }
 
             Rental rental = null;
@@ -115,7 +115,7 @@ public class returnCarService {
 
                 System.out.println("반납 가능한 대여 내역이 없습니다.");
 
-                return;
+                return false;
             }
 
             RentalRecord rentalRecord = null;
@@ -159,7 +159,7 @@ public class returnCarService {
 
                 System.out.println("대여 정보를 찾을 수 없습니다.");
 
-                return;
+                return false;
             }
 
             if ("연체".equals(rentalRecord.getRental_state())) {
@@ -210,7 +210,7 @@ public class returnCarService {
 
                     System.out.println("반납 처리 실패");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -265,8 +265,8 @@ public class returnCarService {
             conn.commit();
 
             System.out.println("반납이 완료되었습니다.");
-
             System.out.println("총 금액 : " + totalPrice);
+            return true;
 
         } catch (Exception e) {
 
@@ -300,5 +300,6 @@ public class returnCarService {
                 e.printStackTrace();
             }
         }
+		return false;
     }
 }

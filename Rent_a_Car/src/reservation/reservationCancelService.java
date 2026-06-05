@@ -12,7 +12,7 @@ import model.RentalRecord;
 
 public class reservationCancelService {
 
-    public static void reservationCancel(
+    public static boolean reservationCancel(
             int cusID,
             String carNo) {
 
@@ -44,7 +44,7 @@ public class reservationCancelService {
 
                     System.out.println("등록되지 않은 고객입니다.");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -70,7 +70,7 @@ public class reservationCancelService {
 
                     System.out.println("존재하지 않는 차량입니다.");
 
-                    return;
+                    return false;
                 }
 
                 rentState = rs.getBoolean(
@@ -83,7 +83,7 @@ public class reservationCancelService {
 
                 System.out.println("대여되지 않은 차량입니다.");
 
-                return;
+                return false;
             }
 
             Rental rental = null;
@@ -120,7 +120,7 @@ public class reservationCancelService {
 
                 System.out.println("취소 가능한 예약이 없습니다.");
 
-                return;
+                return false;
             }
 
             RentalRecord rentalRecord = null;
@@ -170,7 +170,7 @@ public class reservationCancelService {
                 System.out.println(
                         "예약 정보를 찾을 수 없습니다.");
 
-                return;
+                return false;
             }
 
             LocalDate today = LocalDate.now();
@@ -183,7 +183,7 @@ public class reservationCancelService {
 
                 System.out.println("취소 가능한 예약이 없습니다.");
 
-                return;
+                return false;
             }
 
             String updateCarSql =
@@ -207,7 +207,7 @@ public class reservationCancelService {
 
                     System.out.println("차량 상태 변경 실패");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -238,13 +238,14 @@ public class reservationCancelService {
 
                     System.out.println("예약 취소 실패");
 
-                    return;
+                    return false;
                 }
             }
 
             conn.commit();
 
             System.out.println("예약이 취소되었습니다.");
+            return true;
 
         } catch (Exception e) {
 
@@ -280,5 +281,6 @@ public class reservationCancelService {
                 e.printStackTrace();
             }
         }
+		return false;
     }
 }
