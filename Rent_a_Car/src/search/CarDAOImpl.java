@@ -7,17 +7,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import db.DBConnector;
 import model.Car;
 
 public class CarDAOImpl implements CarDao {
-	
-	private final Connection conn;
-	
-	public CarDAOImpl(Connection conn) {
-		this.conn = conn;
-	}
-	
-	
 	
 	//차량 종류 검색
 	public List<Car> searchByType(String type) {
@@ -27,7 +20,8 @@ public class CarDAOImpl implements CarDao {
 	    String sql =
 	        "SELECT * FROM car WHERE car_type = ?";
 	    
-	    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	    try(Connection conn = DBConnector.getConnection();
+	    		PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 	        pstmt.setString(1, type);
 
@@ -79,7 +73,8 @@ public class CarDAOImpl implements CarDao {
 	    	    "   AND rr.expected_return_date >= ? " +
 	    	    ")";
 
-	    try(PreparedStatement pstmt =conn.prepareStatement(sql)) {
+	    try(Connection conn = DBConnector.getConnection();
+	    		PreparedStatement pstmt =conn.prepareStatement(sql)) {
 	        // 차량 종류
 	        pstmt.setString(1, carType);
 	        // 반납예정일

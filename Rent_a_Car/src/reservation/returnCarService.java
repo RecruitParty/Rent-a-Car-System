@@ -10,14 +10,11 @@ import model.RentalRecord;
 public class returnCarService {
 
     private static final CustomerRDAO customerDAO = new CustomerRDAO();
-
     private static final CarRDAO carDAO = new CarRDAO();
-
     private static final RentalRDAO rentalDAO = new RentalRDAO();
-
     private static final RentalRecordRDAO rentalRecordDAO = new RentalRecordRDAO();
 
-    public static void returnCar(
+    public static boolean returnCar(
             int cusID,
             String carNo,
             int returnDest,
@@ -37,7 +34,7 @@ public class returnCarService {
 
                 System.out.println("등록되지 않은 고객입니다.");
 
-                return;
+                return false;
             }
 
             if (carDAO.isAvailable(conn, carNo)) {
@@ -46,7 +43,7 @@ public class returnCarService {
 
                 System.out.println("대여중인 차량이 아닙니다.");
 
-                return;
+                return false;
             }
 
             Rental rental =
@@ -58,7 +55,7 @@ public class returnCarService {
 
                 System.out.println("반납 가능한 대여 내역이 없습니다.");
 
-                return;
+                return false;
             }
 
             RentalRecord rentalRecord = rentalRecordDAO.findByRentalId(conn, rental.getRental_id());
@@ -69,7 +66,7 @@ public class returnCarService {
 
                 System.out.println("대여 정보를 찾을 수 없습니다.");
 
-                return;
+                return false;
             }
 
             if ("연체".equals(
@@ -99,8 +96,8 @@ public class returnCarService {
             conn.commit();
 
             System.out.println("반납이 완료되었습니다.");
-
             System.out.println("총 금액 : " + totalPrice);
+            return true;
 
         } catch (Exception e) {
 
@@ -134,5 +131,6 @@ public class returnCarService {
                 e.printStackTrace();
             }
         }
+		return false;
     }
 }

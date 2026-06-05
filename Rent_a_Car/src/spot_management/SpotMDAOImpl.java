@@ -5,22 +5,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import db.DBConnector;
 import model.Car;
 import model.Spot;
 
 public class SpotMDAOImpl implements SpotMDAO {
-    private final Connection conn;
-
-    public SpotMDAOImpl(Connection conn) {
-        this.conn = conn;
-    }
 
     // 전체 지점 조회
     public List<Spot> getAllSpots() {
         List<Spot> spotList = new ArrayList<>();
         String sql = "SELECT spot_no, spot_name, spot_location FROM spot";
 
-        try(PreparedStatement pstmt = conn.prepareStatement(sql);
+        try(Connection conn = DBConnector.getConnection();
+        		PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery()) {
             while(rs.next()) {
                 Spot spot = new Spot();
@@ -40,7 +38,8 @@ public class SpotMDAOImpl implements SpotMDAO {
         List<Car> carList = new ArrayList<>();
         String sql = "SELECT * FROM car WHERE spot_no = ? ORDER BY car_no";
 
-        try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try(Connection conn = DBConnector.getConnection();
+        		PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, spotNo);
             ResultSet rs = pstmt.executeQuery();
             while(rs.next()) {

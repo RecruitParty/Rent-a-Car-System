@@ -10,14 +10,11 @@ import model.RentalRecord;
 public class ReservationService {
 
     private static final CustomerRDAO customerDAO = new CustomerRDAO();
-
     private static final CarRDAO carDAO = new CarRDAO();
-
     private static final RentalRDAO rentalDAO = new RentalRDAO();
-
     private static final RentalRecordRDAO rentalRecordDAO = new RentalRecordRDAO();
 
-    public static void reservation(
+    public static boolean reservation(
             int cusID,
             String carNo,
             int startLocation,
@@ -37,14 +34,14 @@ public class ReservationService {
 
                 System.out.println("등록되지 않은 고객입니다.");
 
-                return;
+                return false;
             }
 
             if (!carDAO.isAvailable(conn, carNo)) {
 
                 System.out.println("대여 불가능한 차량입니다.");
 
-                return;
+                return false;
             }
 
             carDAO.updateAvailability(conn, carNo, false);
@@ -65,9 +62,8 @@ public class ReservationService {
             rentalDAO.insert(conn, rental);
             rentalRecordDAO.insert(conn, record);
             conn.commit();
-
             System.out.println("예약 완료");
-
+            return true;
         } catch (Exception e) {
 
             try {
@@ -85,5 +81,6 @@ public class ReservationService {
             } catch (Exception e) {
             }
         }
+		return false;
     }
 }

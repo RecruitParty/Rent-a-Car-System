@@ -10,14 +10,11 @@ import model.RentalRecord;
 public class reservationCancelService {
 
     private static final CustomerRDAO customerDAO = new CustomerRDAO();
-
     private static final CarRDAO carDAO = new CarRDAO();
-
     private static final RentalRDAO rentalDAO = new RentalRDAO();
-
     private static final RentalRecordRDAO rentalRecordDAO = new RentalRecordRDAO();
 
-    public static void reservationCancel(
+    public static boolean reservationCancel(
             int cusID,
             String carNo) {
 
@@ -35,7 +32,7 @@ public class reservationCancelService {
 
                 System.out.println("등록되지 않은 고객입니다.");
 
-                return;
+                return false;
             }
 
             if (carDAO.isAvailable(conn, carNo)) {
@@ -44,7 +41,7 @@ public class reservationCancelService {
 
                 System.out.println("대여되지 않은 차량입니다.");
 
-                return;
+                return false;
             }
 
             Rental rental = rentalDAO.findByUserAndCar(conn, cusID, carNo);
@@ -55,7 +52,7 @@ public class reservationCancelService {
 
                 System.out.println("취소 가능한 예약이 없습니다.");
 
-                return;
+                return false;
             }
 
             RentalRecord rentalRecord = rentalRecordDAO.findByRentalId(conn, rental.getRental_id());
@@ -66,7 +63,7 @@ public class reservationCancelService {
 
                 System.out.println("예약 정보를 찾을 수 없습니다.");
 
-                return;
+                return false;
             }
 
             LocalDate today = LocalDate.now();
@@ -80,7 +77,7 @@ public class reservationCancelService {
                 conn.rollback();
                 System.out.println("취소 가능한 예약이 없습니다.");
 
-                return;
+                return false;
             }
 
             carDAO.updateAvailability(conn, carNo, true);
@@ -90,6 +87,7 @@ public class reservationCancelService {
             conn.commit();
 
             System.out.println("예약이 취소되었습니다.");
+            return true;
 
         } catch (Exception e) {
 
@@ -123,5 +121,6 @@ public class reservationCancelService {
                 e.printStackTrace();
             }
         }
+		return false;
     }
 }
