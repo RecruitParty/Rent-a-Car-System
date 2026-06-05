@@ -1,4 +1,6 @@
 package db;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,10 +11,15 @@ public class DBConnector {
 
     static {
         try {
-            InputStream is = DBConnector.class
-                .getClassLoader()
-                .getResourceAsStream("db.properties");
-            props.load(is);
+        	File externalFile = new File("db.properties");
+        	if(externalFile.exists()) {
+                props.load(new FileInputStream(externalFile));
+            } else {
+                InputStream is = DBConnector.class
+                    .getClassLoader()
+                    .getResourceAsStream("db.properties");
+                props.load(is);
+            }
         } catch(Exception e) {
             e.printStackTrace();
         }
