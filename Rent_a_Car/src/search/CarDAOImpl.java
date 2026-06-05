@@ -68,7 +68,7 @@ public class CarDAOImpl implements CarDao {
 	    	    "   FROM rental r " +
 	    	    "   JOIN rental_record rr " +
 	    	    "   ON r.rental_id = rr.rental_id " +
-	    	    "   WHERE rr.rental_state IN ('진행중', '완료') " +
+	    	    "   WHERE rr.rental_state IN ('연체', '완료', '완료(연체됨)', '진행중') " +
 	    	    "   AND rr.rental_date <= ? " +
 	    	    "   AND rr.expected_return_date >= ? " +
 	    	    ")";
