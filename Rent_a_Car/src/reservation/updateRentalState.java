@@ -2,8 +2,6 @@ package reservation;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Date;
-
 import db.DBConnector;
 
 public class updateRentalState {

@@ -3,7 +3,6 @@ package ui;
 import java.awt.*;
 import javax.swing.*;
 import search.CarService;
-import search.SearchMenuUI;
 import reservation.ReservationMenuUI;
 import Rental_record.RentalService;
 import spot_management.SpotService;
@@ -27,7 +26,7 @@ public class MainFrame extends JFrame {
     ) {
         // 창 기본 설정
         setTitle("Rent Car");
-        setSize(400, 800);
+        setSize(800, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

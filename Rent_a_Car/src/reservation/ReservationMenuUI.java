@@ -1,13 +1,7 @@
 package reservation;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Scanner;
-
-import db.DBConnector;
 
 public class ReservationMenuUI {
     private final Scanner sc = new Scanner(System.in);
