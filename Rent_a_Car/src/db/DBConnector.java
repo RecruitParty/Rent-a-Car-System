@@ -1,16 +1,28 @@
 package db;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnector {
-	private static final String URL = "jdbc:mysql://127.0.0.1:3306/rental_car"; //localhost부분IP수정하셔서 사용하시면 됩니다  
-	private static final String USER = "root"; //
- 	private static final String PASS = ""; //여기에 각자 비밀번호 입력해서 사용하시면 됩니다
+    private static final Properties props = new Properties();
 
-	public static Connection getConnection() throws SQLException {
-		return DriverManager.getConnection(URL, USER, PASS);
-	}
-	
-	public DBConnector() {}
+    static {
+        try {
+            InputStream is = DBConnector.class
+                .getClassLoader()
+                .getResourceAsStream("db.properties");
+            props.load(is);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Connection getConnection() throws Exception {
+        return DriverManager.getConnection(
+            props.getProperty("db.url"),
+            props.getProperty("db.user"),
+            props.getProperty("db.password")
+        );
+    }
 }

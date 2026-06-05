@@ -7,14 +7,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import db.DBConnector;
+
 public class RentalDAOImpl implements RecordDAO{
-	
-	private final Connection conn;
-
-	public RentalDAOImpl(Connection conn) {
-		this.conn = conn;
-	}
-
 	@Override
 	public List<RecordDTO> getRentalRecord(int user_id) throws Exception {
 		List<RecordDTO> personalRecord = new ArrayList<>();
@@ -28,24 +23,24 @@ public class RentalDAOImpl implements RecordDAO{
 				     "JOIN Car c ON r.car_no = c.car_no\r\n" +
 				     "WHERE user_id = ?;";
 		
-		PreparedStatement pstmt = conn.prepareStatement(sql);
-		pstmt.setInt(1, user_id);
-		ResultSet rs = pstmt.executeQuery();
-		while (rs.next()) {
-			java.sql.Date actualReturnRaw = rs.getDate("actual_return_date");
-		    LocalDate actualReturnDate = (actualReturnRaw != null)
-		                                  ? actualReturnRaw.toLocalDate()
-		                                  : null;
-		    
-			personalRecord.add(new RecordDTO(rs.getInt("rental_id"), rs.getString("car_no"), 
-					rs.getInt("rental_spot"), rs.getInt("return_spot"), 
-					rs.getDate("rental_date").toLocalDate(), rs.getDate("expected_return_date").toLocalDate(), 
-					actualReturnDate, rs.getString("rental_state"), 
-					rs.getInt("daily_rental_fee")));
+		try(Connection conn = DBConnector.getConnection();
+	            PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setInt(1, user_id);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				java.sql.Date actualReturnRaw = rs.getDate("actual_return_date");
+			    LocalDate actualReturnDate = (actualReturnRaw != null)
+			                                  ? actualReturnRaw.toLocalDate()
+			                                  : null;
+			    
+				personalRecord.add(new RecordDTO(rs.getInt("rental_id"), rs.getString("car_no"), 
+						rs.getInt("rental_spot"), rs.getInt("return_spot"), 
+						rs.getDate("rental_date").toLocalDate(), rs.getDate("expected_return_date").toLocalDate(), 
+						actualReturnDate, rs.getString("rental_state"), 
+						rs.getInt("daily_rental_fee")));
+			}
 		}
 		
-		rs.close();
-		pstmt.close();
 		
 		return personalRecord;
 	}

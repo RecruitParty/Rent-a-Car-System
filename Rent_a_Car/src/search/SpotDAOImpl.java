@@ -6,16 +6,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Car;
+import db.DBConnector;
 import model.Spot;
 
 public class SpotDAOImpl implements SpotDao{
-	
-	private final Connection conn;
-	
-	public SpotDAOImpl(Connection conn) {
-		this.conn = conn;
-	}
 	// 존재하는 지점 조회
 	public List<Spot> getAllSpots() {
 
@@ -23,7 +17,8 @@ public class SpotDAOImpl implements SpotDao{
 
 	    String sql = "SELECT * FROM spot";
 
-	    try(PreparedStatement pstmt =conn.prepareStatement(sql);
+	    try(Connection conn = DBConnector.getConnection();
+	    		PreparedStatement pstmt =conn.prepareStatement(sql);
 	        ResultSet rs = pstmt.executeQuery()) {
 	        while(rs.next()) {
 	            Spot spot = new Spot();

@@ -12,7 +12,7 @@ import model.RentalRecord;
 
 public class ReservationService {
 
-    public static void reservation(
+    public static boolean reservation(
             int cusID,
             String carNo,
             int startLocation,
@@ -38,13 +38,13 @@ public class ReservationService {
 
                 System.out.println("반납 예정일은 대여일보다 빠를 수 없습니다.");
 
-                return;
+                return false;
             }
             if (!expectedReturnDate.isAfter(rentalDate)) {
 
                 System.out.println("반납 예정일은 대여일 이후여야 합니다.");
 
-                return;
+                return false;
             }
             LocalDate today = LocalDate.now();
 
@@ -52,7 +52,7 @@ public class ReservationService {
 
                 System.out.println("과거 날짜로 예약할 수 없습니다.");
 
-                return;
+                return false;
             }
             
             String userSql =
@@ -72,7 +72,7 @@ public class ReservationService {
 
                     System.out.println("등록되지 않은 고객입니다.");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -94,7 +94,7 @@ public class ReservationService {
 
                     System.out.println("존재하지 않는 차량입니다.");
 
-                    return;
+                    return false;
                 }
 
                 if (!rs.getBoolean("rental_availability")) {
@@ -103,7 +103,7 @@ public class ReservationService {
 
                     System.out.println("이미 대여중인 차량입니다.");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -124,7 +124,7 @@ public class ReservationService {
 
                     System.out.println("차량 상태 변경 실패");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -192,7 +192,7 @@ public class ReservationService {
 
                     System.out.println("Rental 저장 실패");
 
-                    return;
+                    return false;
                 }
             }
 
@@ -243,13 +243,14 @@ public class ReservationService {
 
                     System.out.println("RentalRecord 저장 실패");
 
-                    return;
+                    return false;
                 }
             }
 
             conn.commit();
 
             System.out.println("예약이 완료되었습니다.");
+            return true;
 
         } catch (Exception e) {
 
@@ -283,5 +284,6 @@ public class ReservationService {
                 e.printStackTrace();
             }
         }
+		return false;
     }
 }
