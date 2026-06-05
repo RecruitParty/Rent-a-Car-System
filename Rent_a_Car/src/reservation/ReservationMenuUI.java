@@ -42,47 +42,10 @@ public class ReservationMenuUI {
             	    System.out.println("고객 ID는 숫자만 입력 가능합니다.");
             	    continue;
             	}
-                try (Connection conn = DBConnector.getConnection();
-                	     PreparedStatement userStmt = conn.prepareStatement(
-                	         "SELECT * FROM customer WHERE user_id = ?")) {
-
-                	    userStmt.setInt(1, cusID);
-
-                	    ResultSet userRs = userStmt.executeQuery();
-
-                	    if (!userRs.next()) {
-                	        System.out.println("등록되지 않는 아이디입니다.");
-                	        continue;
-                	    }
-
-                	} catch (SQLException e) {
-                	    e.printStackTrace();
-                	    continue;
-                	}
+                
                 System.out.print("차량 번호 입력 : ");
                 String carNo = sc.next();
-                try (Connection conn = DBConnector.getConnection();
-                	     PreparedStatement checkStmt = conn.prepareStatement(
-                	         "SELECT rental_availability FROM car WHERE car_no = ?")) {
-
-                	    checkStmt.setString(1, carNo);
-
-                	    ResultSet rs = checkStmt.executeQuery();
-
-                	    if (!rs.next()) {
-                	        System.out.println("존재하지 않는 차량입니다.");
-                	        continue;
-                	    }
-
-                	    if (!rs.getBoolean("rental_availability")) {
-                	        System.out.println("이미 대여중인 차량입니다.");
-                	        continue;
-                	    }
-
-                	} catch (SQLException e) {
-                	    e.printStackTrace();
-                	    continue;
-                	}
+                
                 int startLocation;
                 int endLocation;
                 try {
@@ -139,47 +102,10 @@ public class ReservationMenuUI {
             	    System.out.println("고객 ID는 숫자만 입력 가능합니다.");
             	    continue;
             	}
-                try (Connection conn = DBConnector.getConnection();
-               	     PreparedStatement userStmt = conn.prepareStatement(
-               	         "SELECT * FROM customer WHERE user_id = ?")) {
-
-               	    userStmt.setInt(1, cusID);
-
-               	    ResultSet userRs = userStmt.executeQuery();
-
-               	    if (!userRs.next()) {
-               	        System.out.println("등록되지 않는 아이디입니다.");
-               	        continue;
-               	    }
-
-               	} catch (SQLException e) {
-               	    e.printStackTrace();
-               	    continue;
-               	}
+                
                 System.out.print("차량 번호 입력 : ");
                 String carNo = sc.next();
-                try (Connection conn = DBConnector.getConnection();
-               	     PreparedStatement checkStmt = conn.prepareStatement(
-               	         "SELECT rental_availability FROM car WHERE car_no = ?")) {
-
-               	    checkStmt.setString(1, carNo);
-
-               	    ResultSet rs = checkStmt.executeQuery();
-
-               	    if (!rs.next()) {
-               	        System.out.println("존재하지 않는 차량입니다.");
-               	        continue;
-               	    }
-
-               	    if (!rs.getBoolean("rental_availability")) {
-               	        System.out.println("이미 대여중인 차량입니다.");
-               	        continue;
-               	    }
-
-               	} catch (SQLException e) {
-               	    e.printStackTrace();
-               	    continue;
-               	}
+                
                 int returnDest;
                 try {
 	                System.out.print("반납 위치 입력 : ");
