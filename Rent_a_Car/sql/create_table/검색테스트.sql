@@ -13,11 +13,11 @@ AND c.car_no NOT IN (
     SELECT r.car_no
     FROM rental r
     JOIN rental_record rr
-    ON rcar.rental_id = rr.rental_id
+    ON r.rental_id = rr.rental_id
     WHERE rr.rental_state = '연체'
 )
 AND c.car_no NOT IN (
-    SELECT r.car_nocar
+    SELECT r.car_no
     FROM rental r
     JOIN rental_record rr
     ON r.rental_id = rr.rental_id
